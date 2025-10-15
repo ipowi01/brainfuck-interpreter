@@ -21,7 +21,7 @@ void tape_free(Tape *t) {
 }
 
 void tape_ensure(Tape *t, size_t index) {
-    if (index >= t->capacity) {
+    if (index >= t->capacity) { //initially allocated size doubles if needed
         size_t new_capacity = t->capacity * 2;
         while (new_capacity <= index) new_capacity *= 2;
         t->data = realloc(t->data, new_capacity);
@@ -68,14 +68,14 @@ int main(int argc, char *argv[]) {
 
     for (long ip = 0; ip < code_size; ip++) {
         switch (code[ip]) {
-            case '>': ptr++; tape_ensure(&tape, ptr); break;
-            case '<': if (ptr > 0) ptr--; break;
-            case '+': tape.data[ptr]++; break;
-            case '-': tape.data[ptr]--; break;
-            case '.': putchar(tape.data[ptr]); break;
-            case ',': tape.data[ptr] = getchar(); break;
-            case '[': if (tape.data[ptr] == 0) ip = jump[ip]; break;
-            case ']': if (tape.data[ptr] != 0) ip = jump[ip]; break;
+            case '>': ptr++; tape_ensure(&tape, ptr); break;//move data pointer right
+            case '<': if (ptr > 0) ptr--; break;                    //move data pointer left
+            case '+': tape.data[ptr]++; break;                      //increment current cell
+            case '-': tape.data[ptr]--; break;                      //decrement current cell
+            case '.': putchar(tape.data[ptr]); break;           //output current cell as ASCII
+            case ',': tape.data[ptr] = getchar(); break;            //input 1 byte
+            case '[': if (!tape.data[ptr]) ip = jump[ip]; break;//jump forward if current cell is 0
+            case ']': if (tape.data[ptr]) ip = jump[ip]; break;//jump back if current cell is not 0
         }
     }
 
